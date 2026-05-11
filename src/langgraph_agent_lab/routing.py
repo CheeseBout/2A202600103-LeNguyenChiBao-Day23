@@ -10,7 +10,8 @@ def route_after_classify(state: AgentState) -> str:
 
     TODO(student): handle unknown routes safely and update tests for edge cases.
     """
-    route = state.get("route", Route.SIMPLE.value)
+    # Implement
+    route = str(state.get("route", Route.SIMPLE.value))
     mapping = {
         Route.SIMPLE.value: "answer",
         Route.TOOL.value: "tool",
@@ -18,7 +19,7 @@ def route_after_classify(state: AgentState) -> str:
         Route.RISKY.value: "risky_action",
         Route.ERROR.value: "retry",
     }
-    return mapping.get(route, "answer")
+    return mapping.get(route, "clarify")
 
 
 def route_after_retry(state: AgentState) -> str:
@@ -26,6 +27,7 @@ def route_after_retry(state: AgentState) -> str:
 
     TODO(student): implement bounded retry and dead-letter routing.
     """
+    # Implement
     if int(state.get("attempt", 0)) >= int(state.get("max_attempts", 3)):
         return "dead_letter"
     return "tool"
@@ -37,7 +39,8 @@ def route_after_evaluate(state: AgentState) -> str:
     This is the 'done?' check that enables retry loops — a key LangGraph advantage over LCEL.
     TODO(student): replace heuristic with LLM-as-judge or structured validation.
     """
-    if state.get("evaluation_result") == "needs_retry":
+    # Implement
+    if str(state.get("evaluation_result", "")).lower() == "needs_retry":
         return "retry"
     return "answer"
 
@@ -47,5 +50,6 @@ def route_after_approval(state: AgentState) -> str:
 
     TODO(student): support reject/edit outcomes.
     """
+    # Implement
     approval = state.get("approval") or {}
-    return "tool" if approval.get("approved") else "clarify"
+    return "tool" if bool(approval.get("approved")) else "clarify"

@@ -1,36 +1,10 @@
-"""Report generation helper."""
-
-from __future__ import annotations
-
-from datetime import date
-from pathlib import Path
-
-from .metrics import MetricsReport
-
-
-def _render_scenario_rows(metrics: MetricsReport) -> str:
-    rows: list[str] = []
-    for item in metrics.scenario_metrics:
-        rows.append(
-            f"| {item.scenario_id} | {item.expected_route} | {item.actual_route or '-'} | "
-            f"{'yes' if item.success else 'no'} | {item.retry_count} | {item.interrupt_count} |"
-        )
-    return "\n".join(rows)
-
-
-def render_report_stub(metrics: MetricsReport) -> str:
-    """Return a minimal report stub.
-
-    TODO(student): replace with a richer report using the template in reports/.
-    """
-    # Implement
-    return f"""# Day 08 Lab Report
+# Day 08 Lab Report
 
 ## 1. Team / student
 
 - Name: Le Nguyen Chi Bao
 - Repo/commit: local working tree
-- Date: {date.today().isoformat()}
+- Date: 2026-05-11
 
 ## 2. Architecture
 
@@ -54,16 +28,22 @@ Risky requests are gated by `approval` before tool execution.
 
 | Scenario | Expected route | Actual route | Success | Retries | Interrupts |
 |---|---|---|---:|---:|---:|
-{_render_scenario_rows(metrics)}
+| S01_simple | simple | simple | yes | 0 | 0 |
+| S02_tool | tool | tool | yes | 0 | 0 |
+| S03_missing | missing_info | missing_info | yes | 0 | 0 |
+| S04_risky | risky | risky | yes | 0 | 3 |
+| S05_error | error | error | yes | 9 | 0 |
+| S06_delete | risky | risky | yes | 0 | 3 |
+| S07_dead_letter | error | error | yes | 3 | 0 |
 
 ### Metrics summary
 
-- Total scenarios: {metrics.total_scenarios}
-- Success rate: {metrics.success_rate:.2%}
-- Average nodes visited: {metrics.avg_nodes_visited:.2f}
-- Total retries: {metrics.total_retries}
-- Total interrupts: {metrics.total_interrupts}
-- Resume/state-history evidence: {metrics.resume_success}
+- Total scenarios: 7
+- Success rate: 100.00%
+- Average nodes visited: 19.71
+- Total retries: 12
+- Total interrupts: 6
+- Resume/state-history evidence: True
 
 ## 5. Failure analysis
 
@@ -94,10 +74,3 @@ Postgres path performs checkpointer `setup()` and supports persistent checkpoint
 
 Additional evidence to attach before final submission: screenshot/log for
 Postgres checkpoint table growth and one `get_state_history()` dump.
-"""
-
-
-def write_report(metrics: MetricsReport, output_path: str | Path) -> None:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(render_report_stub(metrics), encoding="utf-8")
